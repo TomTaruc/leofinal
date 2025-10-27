@@ -50,6 +50,9 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void setShapeMode(ShapeMode shapeMode) {
+        // This is where commands *should* be created.
+        // We will do it in the PropertyEventListener for now
+        // to handle both menu clicks and property sheet changes.
         appService.setShapeMode(shapeMode);
     }
 
@@ -71,6 +74,7 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void setColor(Color color) {
+        // This will be wrapped by the listener
         appService.setColor(color);
     }
 
@@ -81,6 +85,7 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void setFill(Color color) {
+        // This will be wrapped by the listener
         appService.setFill(color);
     }
 
@@ -208,6 +213,7 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void setThickness(int thickness) {
+        // This will be wrapped by the listener
         appService.setThickness(thickness);
     }
 
@@ -218,6 +224,7 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void setXLocation(int xLocation) {
+        // This will be wrapped by the listener
         appService.setXLocation(xLocation);
     }
 
@@ -228,6 +235,7 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void setYLocation(int yLocation) {
+        // This will be wrapped by the listener
         appService.setYLocation(yLocation);
     }
 
@@ -238,6 +246,7 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void setWidth(int width) {
+        // This will be wrapped by the listener
         appService.setWidth(width);
     }
 
@@ -248,6 +257,7 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void setHeight(int height) {
+        // This will be wrapped by the listener
         appService.setHeight(height);
     }
 
@@ -272,12 +282,36 @@ public class DrawingCommandAppService implements AppService {
     }
 
     @Override
+    public String getText() {
+        return appService.getText();
+    }
+
+    @Override
     public void setText(String text) {
+        // This will be wrapped by the listener
         appService.setText(text);
     }
 
     @Override
+    public Font getFont() {
+        return appService.getFont();
+    }
+
+    @Override
     public void setFontSize(int fontSize) {
+        // This will be wrapped by the listener
         appService.setFontSize(fontSize);
+    }
+
+    @Override
+    public void setFontFamily(String family) {
+        // This will be wrapped by the listener
+        appService.setFontFamily(family);
+    }
+
+    @Override
+    public void setFontStyle(int style) {
+        // This will be wrapped by the listener
+        appService.setFontStyle(style);
     }
 }

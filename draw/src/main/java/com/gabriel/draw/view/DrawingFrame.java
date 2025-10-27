@@ -106,79 +106,14 @@ public class DrawingFrame extends JFrame {
         PropertyOptions options = new PropertyOptions(headers, backgroundColor, invalidColor, rowHeight);
 
         propertySheet = new PropertySheet(new PropertyOptions.Builder().build());
-        propertySheet.addEventListener(new EventListener());
+
+        // Use the correct, centralized event listener
+        propertySheet.addEventListener(new com.gabriel.draw.controller.PropertyEventListener(appService));
+
         propertySheet.populateTable(appService);
 
         repaint();
     }
 
-    class EventListener extends PropertyEventAdapter {
-        @Override
-        public void onPropertyUpdated(Property property) {
-            Shape shape  = appService.getSelectedShape();
-            if(property.getName().equals("Current Shape")){
-                if(shape ==null) {
-                    appService.setShapeMode((ShapeMode) property.getValue());
-                }
-            }
-            if(property.getName().equals("Fore color")){
-                if(shape ==null) {
-                    appService.setColor((Color) property.getValue());
-                } else {
-                    shape.setColor((Color) property.getValue());
-                }
-            }
-            if(property.getName().equals("Fill color")){
-                if(shape ==null) {
-                    appService.setFill((Color)property.getValue());
-                } else {
-                    shape.setFill((Color) property.getValue());
-                }
-            }
-            if(property.getName().equals("Line Thickness")){
-                if(shape ==null) {
-                    appService.setThickness((int)property.getValue());
-                } else {
-                    shape.setThickness((int) property.getValue());
-                }
-            }
-            if(property.getName().equals("X Location")){
-                if(shape ==null) {
-                    ;
-                } else {
-                    Point p = shape.getLocation();
-                    p.x = (int) property.getValue();
-                    shape.setLocation(p);
-                }
-            }
-            if(property.getName().equals("Y Location")){
-                if(shape ==null) {
-                    ;
-                } else {
-                    Point p = shape.getLocation();
-                    p.y = (int) property.getValue();
-                    shape.setLocation(p);
-                }
-            }
-            if(property.getName().equals("Width")){
-                if(shape ==null) {
-                    ;
-                } else {
-                    int width = shape.getWidth();
-                    shape.setWidth(width);
-                }
-            }
-            if(property.getName().equals("Height")){
-                if(shape ==null) {
-                    ;
-                } else {
-                    int height = (int) property.getValue();
-                    shape.setHeight(height);
-                }
-            }
-
-            drawingView.repaint();
-        }
-    }
+    // The redundant inner class EventListener has been REMOVED.
 }
-

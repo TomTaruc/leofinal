@@ -8,14 +8,10 @@ import com.gabriel.property.cell.SelectionCellComponent;
 import com.gabriel.property.property.*;
 import com.gabriel.property.property.selection.Item;
 import com.gabriel.property.property.selection.SelectionProperty;
-import com.gabriel.property.validator.CompoundValidator;
-import com.gabriel.property.validator.StringValidator;
-import com.gabriel.property.validator.doubleNumber.DoubleRangeValidator;
-import com.gabriel.property.validator.doubleNumber.DoubleValidator;
-import com.gabriel.property.validator.doubleNumber.DoubleZeroPolicyValidator;
 import com.gabriel.drawfx.model.Shape;
 import com.gabriel.drawfx.service.AppService;
 
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -27,6 +23,13 @@ public class PropertySheet extends PropertyPanel {
     Item LineItem;
     Item TextItem;
     Item SelectItem;
+    Item ImageItem; // Added for completeness
+
+    // Font Style items
+    Item PlainItem;
+    Item BoldItem;
+    Item ItalicItem;
+    Item BoldItalicItem;
 
 
     public void setShapeProp(ShapeMode shapeMode ){
@@ -39,69 +42,87 @@ public class PropertySheet extends PropertyPanel {
             selectionComponent.setCellEditorValue(LineItem);
         } else if (shapeMode == ShapeMode.Select) {
             selectionComponent.setCellEditorValue(SelectItem);
+        } else if (shapeMode == ShapeMode.Text) {
+            selectionComponent.setCellEditorValue(TextItem);
+        } else if (shapeMode == ShapeMode.Image) {
+            selectionComponent.setCellEditorValue(ImageItem);
         }
     }
 
     public PropertySheet(PropertyOptions options){
         super(options);
+
+        // Initialize all shape items
+        RectangleItem = new Item<>(ShapeMode.Rectangle, "Rectangle");
+        EllipseItem = new Item<>(ShapeMode.Ellipse, "Ellipse");
+        LineItem = new Item<>(ShapeMode.Line, "Line");
+        TextItem = new Item<>(ShapeMode.Text, "Text");
+        ImageItem = new Item<>(ShapeMode.Image, "Image");
+        SelectItem = new Item<>(ShapeMode.Select, "Select");
+
         shapeProp = new SelectionProperty<>(
                 "Current Shape",
                 new ArrayList<>(Arrays.asList(
-                        new Item<>(ShapeMode.Rectangle, "Rectangle"),
-                        new Item<>(ShapeMode.Ellipse, "Ellipse"),
-                        new Item<>(ShapeMode.Line, "Line"),
-                        new Item<>(ShapeMode.Text, "Text"),
-                        new Item<>(ShapeMode.Select, "Select")
+                        RectangleItem,
+                        EllipseItem,
+                        LineItem,
+                        TextItem,
+                        ImageItem,
+                        SelectItem
                 ))
         );
+
+        // Initialize font style items
+        PlainItem = new Item<>(Font.PLAIN, "Plain");
+        BoldItem = new Item<>(Font.BOLD, "Bold");
+        ItalicItem = new Item<>(Font.ITALIC, "Italic");
+        BoldItalicItem = new Item<>(Font.BOLD | Font.ITALIC, "Bold Italic");
     }
 
     public void populateTable(AppService appService) {
         propertyTable = this;
-        propertyTable.addEventListener(new PropertyEventListener(appService));
+        // The listener is now added in DrawingFrame, no need to add it here.
+        // propertyTable.addEventListener(new PropertyEventListener(appService));
 
         Shape shape  = appService.getSelectedShape();
+        propertyTable.clear();
 
         if ( shape == null) {
-            propertyTable.clear();
+            // NO SHAPE SELECTED: Show drawing-wide properties
             String objectType = "Drawing";
             StringProperty targetProp = new StringProperty("Object Type", objectType);
             propertyTable.addProperty(targetProp);
 
-            RectangleItem = new Item<ShapeMode>(ShapeMode.Rectangle, "Rectangle");
-            EllipseItem = new Item<ShapeMode>(ShapeMode.Ellipse, "Ellipse");
-            LineItem =    new Item<ShapeMode>(ShapeMode.Line, "Line");
-            SelectItem =    new Item<ShapeMode>(ShapeMode.Select, "Select");
-            TextItem =    new Item<ShapeMode>(ShapeMode.Text, "Text");
+            // Re-create shapeProp to ensure it's fresh
             shapeProp = new SelectionProperty<>(
                     "Current Shape",
                     new ArrayList<>(Arrays.asList(
                             RectangleItem,
                             EllipseItem,
                             LineItem,
-                            SelectItem,
-                            TextItem
+                            TextItem,
+                            ImageItem,
+                            SelectItem
                     ))
             );
             propertyTable.addProperty(shapeProp);
 
-            SelectionCellComponent  selectionComponent =  propertyTable.getSelectionCellComponent();
-
+            // Set the dropdown to the current app service shape mode
             ShapeMode shapeMode = appService.getShapeMode();
-            if(shapeMode == ShapeMode.Rectangle) {
-                selectionComponent.setCellEditorValue(RectangleItem);
-            }
-            else if(shapeMode == ShapeMode.Ellipse) {
-                selectionComponent.setCellEditorValue(EllipseItem);
-            }
-            else if(shapeMode == ShapeMode.Line) {
-                selectionComponent.setCellEditorValue(LineItem);
-            }
-            else if(shapeMode == ShapeMode.Select) {
-                selectionComponent.setCellEditorValue(SelectItem);
+            if (shapeMode == ShapeMode.Rectangle) {
+                shapeProp.setValue(RectangleItem.getValue());
+            } else if (shapeMode == ShapeMode.Ellipse) {
+                shapeProp.setValue(EllipseItem.getValue());
+            } else if (shapeMode == ShapeMode.Line) {
+                shapeProp.setValue(LineItem.getValue());
+            } else if (shapeMode == ShapeMode.Text) {
+                shapeProp.setValue(TextItem.getValue());
+            } else if (shapeMode == ShapeMode.Image) {
+                shapeProp.setValue(ImageItem.getValue());
+            } else if (shapeMode == ShapeMode.Select) {
+                shapeProp.setValue(SelectItem.getValue());
             }
 
-            shapeProp.setValue(shape);
             ColorProperty currentColorProp = new ColorProperty("Fore color", appService.getColor());
             propertyTable.addProperty(currentColorProp);
 
@@ -111,84 +132,34 @@ public class PropertySheet extends PropertyPanel {
             IntegerProperty lineThicknessProp = new IntegerProperty("Line Thickness", appService.getThickness());
             propertyTable.addProperty(lineThicknessProp);
 
-            IntegerProperty xlocProp = new IntegerProperty("X Location", appService.getXLocation());
-            propertyTable.addProperty(xlocProp);
+            // Add Font properties for the *next* text shape
+            StringProperty textProp = new StringProperty("Text", appService.getText());
+            propertyTable.addProperty(textProp);
 
-            IntegerProperty ylocProp = new IntegerProperty("Y Location", appService.getYLocation());
-            propertyTable.addProperty(ylocProp);
+            StringProperty fontFamilyProp = new StringProperty("Font Family", appService.getFont().getFamily());
+            propertyTable.addProperty(fontFamilyProp);
 
-            IntegerProperty width = new IntegerProperty("Width", appService.getXLocation());
-            propertyTable.addProperty(width );
-
-            IntegerProperty height = new IntegerProperty("Height", appService.getXLocation());
-            propertyTable.addProperty(height);
-
-            BooleanProperty prop3 = new BooleanProperty("Boolean", true);
-            propertyTable.addProperty(prop3);
-
-            FloatProperty prop4 = new FloatProperty("Float", 1.2f);
-            propertyTable.addProperty(prop4);
-
-            StringProperty prop5 = new StringProperty("String", "Test string");
-            propertyTable.addProperty(prop5);
-
-            StringProperty prop6 = new StringProperty("String 2", "test", new StringValidator(
-                    new String[]{"test", "test 2", "foo"}
-            ));
-            propertyTable.addProperty(prop6);
-
-            DoubleProperty prop8 = new DoubleProperty("Double", 2.34,
-                    new CompoundValidator(
-                            new DoubleValidator(),
-                            new DoubleRangeValidator(-1.2, 45.33, true, false),
-                            new DoubleZeroPolicyValidator(false)
-                    )
+            SelectionProperty fontStyleProp = new SelectionProperty<>(
+                    "Font Style",
+                    new ArrayList<>(Arrays.asList(PlainItem, BoldItem, ItalicItem, BoldItalicItem))
             );
-            ActionProperty prop9 = new ActionProperty("Press me", () -> {
-                System.out.println("Pressed");
-            });
-            propertyTable.addProperty(prop9);
+            fontStyleProp.setValue(appService.getFont().getStyle());
+            propertyTable.addProperty(fontStyleProp);
+
+            IntegerProperty fontSizeProp = new IntegerProperty("Font size", appService.getFont().getSize());
+            propertyTable.addProperty(fontSizeProp);
+
         }
         else {
-            propertyTable.clear();
-            StringProperty targetProp = new StringProperty("Object Type", "Shape");
+            // SHAPE IS SELECTED: Show shape-specific properties
+            StringProperty targetProp = new StringProperty("Object Type", shape.getClass().getSimpleName());
             propertyTable.addProperty(targetProp);
 
-            RectangleItem = new Item<ShapeMode>(ShapeMode.Rectangle, "Rectangle");
-            EllipseItem = new Item<ShapeMode>(ShapeMode.Ellipse, "Ellipse");
-            LineItem =    new Item<ShapeMode>(ShapeMode.Line, "Line");
-            SelectItem =    new Item<ShapeMode>(ShapeMode.Select, "Select");
-
-            shapeProp = new SelectionProperty<>(
-                    "Current Shape",
-                    new ArrayList<>(Arrays.asList(
-                            RectangleItem,
-                            EllipseItem,
-                            LineItem,
-                            SelectItem
-
-                    ))
-            );
-            propertyTable.addProperty(shapeProp);
-
-            SelectionCellComponent  selectionComponent =  propertyTable.getSelectionCellComponent();
-
-
-            String className = shape.getClass().getSimpleName();
-            if(className.equals("Rectangle")) {
-                selectionComponent.setCellEditorValue(RectangleItem);
-            }
-            else if(className.equals("Ellipse")) {
-                selectionComponent.setCellEditorValue(EllipseItem);
-            }
-            else if(className.equals("Line")) {
-                selectionComponent.setCellEditorValue(LineItem);
-            }
-
-            IntegerProperty xlocProp = new IntegerProperty("X Location ", shape.getLocation().x);
+            // X, Y, Width, Height are relevant here
+            IntegerProperty xlocProp = new IntegerProperty("X Location", shape.getLocation().x);
             propertyTable.addProperty(xlocProp);
 
-            IntegerProperty ylocProp = new IntegerProperty("Y Location ", shape.getLocation().y);
+            IntegerProperty ylocProp = new IntegerProperty("Y Location", shape.getLocation().y);
             propertyTable.addProperty(ylocProp);
 
             IntegerProperty widthProp = new IntegerProperty("Width", shape.getWidth());
@@ -197,6 +168,7 @@ public class PropertySheet extends PropertyPanel {
             IntegerProperty heightProp = new IntegerProperty("Height", shape.getHeight());
             propertyTable.addProperty(heightProp);
 
+            // Color properties
             ColorProperty currentColorProp = new ColorProperty("Fore color", shape.getColor());
             propertyTable.addProperty(currentColorProp);
 
@@ -206,39 +178,33 @@ public class PropertySheet extends PropertyPanel {
             IntegerProperty lineThicknessProp = new IntegerProperty("Line Thickness", shape.getThickness());
             propertyTable.addProperty(lineThicknessProp);
 
+            // Add text properties ONLY if the shape is a Text shape
+            // (or potentially an Image shape if we add a caption feature)
+            if (shape.getClass().getSimpleName().equals("Text")) {
+                StringProperty textProp= new StringProperty("Text", shape.getText());
+                propertyTable.addProperty(textProp);
 
-            StringProperty textProp= new StringProperty("Text", shape.getText());
-            propertyTable.addProperty(textProp);
+                StringProperty fontFamilyProp= new StringProperty("Font Family", shape.getFont().getFamily());
+                propertyTable.addProperty(fontFamilyProp);
 
-            StringProperty fontFamilyProp= new StringProperty("Font Family", shape.getFont().getFamily());
-            propertyTable.addProperty(fontFamilyProp);
+                SelectionProperty fontStyleProp = new SelectionProperty<>(
+                        "Font Style",
+                        new ArrayList<>(Arrays.asList(PlainItem, BoldItem, ItalicItem, BoldItalicItem))
+                );
+                fontStyleProp.setValue(shape.getFont().getStyle());
+                propertyTable.addProperty(fontStyleProp);
 
-            IntegerProperty fontStyleProp= new IntegerProperty("Font Style", shape.getFont().getStyle());
-            propertyTable.addProperty(fontStyleProp);
+                IntegerProperty fontSizeProp= new IntegerProperty("Font size", shape.getFont().getSize());
+                propertyTable.addProperty(fontSizeProp);
+            }
 
-            IntegerProperty fontSizeProp= new IntegerProperty("Font size", shape.getFont().getSize());
-            propertyTable.addProperty(fontSizeProp);
-
-                BooleanProperty prop3 = new BooleanProperty("Boolean", true);
-                FloatProperty prop4 = new FloatProperty("Float", 1.2f);
-                StringProperty prop5 = new StringProperty("String", "Test string");
-                StringProperty prop6 = new StringProperty("String 2", "test", new StringValidator(
-                        new String[]{"test", "test 2", "foo"}
-            ));
-            DoubleProperty prop8 = new DoubleProperty("Double", 2.34,
-                    new CompoundValidator(
-                            new DoubleValidator(),
-                            new DoubleRangeValidator(-1.2, 45.33, true, false),
-                            new DoubleZeroPolicyValidator(false)
-                    )
-            );
-            ActionProperty imageProp = new ActionProperty("Image", () -> {
-                System.out.println("Pressed");
-                appService.setImageFileename();
-            });
-            propertyTable.addProperty(imageProp);
+            // Add image property ONLY if it's a Picture
+            if (shape.getClass().getSimpleName().equals("Picture")) {
+                ActionProperty imageProp = new ActionProperty("Change Image", () -> {
+                    appService.setImageFileename();
+                });
+                propertyTable.addProperty(imageProp);
+            }
         }
     }
-
-
 }

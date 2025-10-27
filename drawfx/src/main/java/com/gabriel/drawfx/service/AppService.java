@@ -75,7 +75,12 @@ public interface AppService {
     void setImageFileename();
     void setImageFileename(String filename);
     String getImageFileename();
+
+    String getText();
     void setText(String text);
 
+    Font getFont();
     void setFontSize(int fontSize);
+    void setFontFamily(String family);
+    void setFontStyle(int style);
 }

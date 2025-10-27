@@ -69,6 +69,10 @@ public class DrawingAppService implements AppService {
 
     @Override
     public Color getColor() {
+        Shape selectedShape = getSelectedShape();
+        if (selectedShape != null) {
+            return selectedShape.getColor();
+        }
         return drawing.getColor();
     }
 
@@ -79,23 +83,33 @@ public class DrawingAppService implements AppService {
         for (Shape shape : shapes) {
             if (shape.isSelected()) {
                 shape.setColor(color);
-                shape.getRendererService().render(drawingView.getGraphics(), shape, false);
                 isEmpty = false;
             }
         }
         if(isEmpty){
             drawing.setColor(color);
         }
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
     public Color getFill(){
+        Shape selectedShape = getSelectedShape();
+        if (selectedShape != null) {
+            return selectedShape.getFill();
+        }
         return drawing.getFill();
     }
 
     @Override
     public void setFill(Color color) {
-        drawing.setFill(color);
+        Shape selectedShape = getSelectedShape();
+        if (selectedShape != null) {
+            selectedShape.setFill(color);
+        } else {
+            drawing.setFill(color);
+        }
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
@@ -132,11 +146,14 @@ public class DrawingAppService implements AppService {
         shape.setThickness(drawing.getThickness());
         shape.setId(this.drawing.getShapes().size());
         shape.setFont(drawing.getFont());
+        shape.setText(drawing.getText());
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
     public void delete(Shape shape) {
         drawing.getShapes().remove(shape);
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
@@ -177,6 +194,7 @@ public class DrawingAppService implements AppService {
     @Override
     public void open(String filename) {
         xmlDocumentService.open(filename);
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
@@ -191,7 +209,8 @@ public class DrawingAppService implements AppService {
 
     @Override
     public void newDrawing() {
-
+        drawing.getShapes().clear();
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
@@ -251,41 +270,39 @@ public class DrawingAppService implements AppService {
             shape.setSelectionMode(SelectionMode.None);
         }
         drawing.setSelectedShape(null);
-        drawingView.repaint();
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
     public void setThickness(int thickness) {
-        Shape seleectedShape = drawing.getSelectedShape();
-        if(seleectedShape == null ){
+        Shape selectedShape = drawing.getSelectedShape();
+        if(selectedShape == null ){
             drawing.setThickness(thickness);
         }
         else {
-            seleectedShape.setThickness(thickness);
+            selectedShape.setThickness(thickness);
         }
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
     public int getThickness() {
-        Shape seleectedShape = drawing.getSelectedShape();
-        if(seleectedShape == null ){
-           return drawing.getThickness();
+        Shape selectedShape = drawing.getSelectedShape();
+        if(selectedShape == null ){
+            return drawing.getThickness();
         }
         else {
-            return seleectedShape.getThickness();
+            return selectedShape.getThickness();
         }
     }
 
     @Override
-    public void setXLocation(int thickness) {
-        Shape seleectedShape = drawing.getSelectedShape();
-        if(seleectedShape == null ){
-            drawing.setThickness(thickness);
+    public void setXLocation(int xLocation) {
+        Shape selectedShape = drawing.getSelectedShape();
+        if(selectedShape != null ){
+            selectedShape.getLocation().x = xLocation;
         }
-        else {
-            seleectedShape.setThickness(thickness);
-        }
-
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
@@ -302,34 +319,30 @@ public class DrawingAppService implements AppService {
     @Override
     public void setYLocation(int yLocation) {
         Shape selectedShape = drawing.getSelectedShape();
-        if(selectedShape == null ){
-            drawing.getLocation().y = yLocation;
-        }
-        else {
+        if(selectedShape != null ){
             selectedShape.getLocation().y = yLocation;
         }
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
     public int getYLocation() {
-        Shape seleectedShape = drawing.getSelectedShape();
-        if(seleectedShape == null ){
+        Shape selectedShape = drawing.getSelectedShape();
+        if(selectedShape == null ){
             return drawing.getLocation().y;
         }
         else {
-            return seleectedShape.getLocation().y;
+            return selectedShape.getLocation().y;
         }
     }
 
     @Override
     public void setWidth(int width) {
         Shape selectedShape = drawing.getSelectedShape();
-        if(selectedShape == null ){
-            drawing.setWidth(width);
-        }
-        else {
+        if(selectedShape != null ){
             selectedShape.setWidth(width);
         }
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
@@ -346,12 +359,10 @@ public class DrawingAppService implements AppService {
     @Override
     public void setHeight(int height) {
         Shape selectedShape = drawing.getSelectedShape();
-        if(selectedShape == null ){
-            drawing.setHeight(height);
-        }
-        else {
+        if(selectedShape != null ){
             selectedShape.setHeight(height);
         }
+        if (drawingView != null) drawingView.repaint();
     }
 
     @Override
@@ -382,6 +393,15 @@ public class DrawingAppService implements AppService {
     }
 
     @Override
+    public String getText() {
+        Shape selectedShape = getSelectedShape();
+        if (selectedShape != null) {
+            return selectedShape.getText();
+        }
+        return drawing.getText();
+    }
+
+    @Override
     public void setText(String text) {
         Shape selectedShape = drawing.getSelectedShape();
         if(selectedShape == null ){
@@ -390,6 +410,16 @@ public class DrawingAppService implements AppService {
         else {
             selectedShape.setText(text);
         }
+        if (drawingView != null) drawingView.repaint();
+    }
+
+    @Override
+    public Font getFont() {
+        Shape selectedShape = getSelectedShape();
+        if (selectedShape != null) {
+            return selectedShape.getFont();
+        }
+        return drawing.getFont();
     }
 
     @Override
@@ -403,5 +433,34 @@ public class DrawingAppService implements AppService {
             Font font = new Font(selectedShape.getFont().getFamily(), selectedShape.getFont().getStyle(), fontSize);
             selectedShape.setFont(font);
         }
+        if (drawingView != null) drawingView.repaint();
+    }
+
+    @Override
+    public void setFontFamily(String family) {
+        Shape selectedShape = getSelectedShape();
+        if(selectedShape == null ){
+            Font font = new Font(family, drawing.getFont().getStyle(), drawing.getFont().getSize());
+            drawing.setFont(font);
+        }
+        else {
+            Font font = new Font(family, selectedShape.getFont().getStyle(), selectedShape.getFont().getSize());
+            selectedShape.setFont(font);
+        }
+        if (drawingView != null) drawingView.repaint();
+    }
+
+    @Override
+    public void setFontStyle(int style) {
+        Shape selectedShape = getSelectedShape();
+        if(selectedShape == null ){
+            Font font = new Font(drawing.getFont().getFamily(), style, drawing.getFont().getSize());
+            drawing.setFont(font);
+        }
+        else {
+            Font font = new Font(selectedShape.getFont().getFamily(), style, selectedShape.getFont().getSize());
+            selectedShape.setFont(font);
+        }
+        if (drawingView != null) drawingView.repaint();
     }
 }

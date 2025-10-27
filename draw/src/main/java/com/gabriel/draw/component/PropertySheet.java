@@ -200,7 +200,8 @@ public class PropertySheet extends PropertyPanel {
 
             // Add image property ONLY if it's a Picture
             if (shape.getClass().getSimpleName().equals("Picture")) {
-                ActionProperty imageProp = new ActionProperty("Change Image", () -> {
+                // FIX: Added the missing 2nd argument "actionName" (the button text)
+                ActionProperty imageProp = new ActionProperty("Change Image", "Change...", () -> {
                     appService.setImageFileename();
                 });
                 propertyTable.addProperty(imageProp);

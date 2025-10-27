@@ -110,7 +110,8 @@ public class PropertyEventListener extends PropertyEventAdapter {
             ShapeMode oldValue = appService.getShapeMode();
             ShapeMode newValue = (ShapeMode) property.getValue();
             if (oldValue != newValue) {
-                Command cmd = new SetShapeModeCommand(appService, oldValue, newValue);
+                // FIX: Renamed class from SetShapeModeCommand to SetShapeCommand
+                Command cmd = new SetShapeCommand(appService, oldValue, newValue);
                 CommandService.ExecuteCommand(cmd);
             }
         }

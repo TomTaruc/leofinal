@@ -35,15 +35,29 @@ public class DrawingController  implements MouseListener, MouseMotionListener, K
     @Setter
     private PropertySheet propertySheet;
 
+    // FIX: Manually add setters that Lombok was supposed to create
+    public void setDrawingView(DrawingView drawingView) {
+        this.drawingView = drawingView;
+    }
+
+    public void setDrawingStatusPanel(DrawingStatusPanel drawingStatusPanel) {
+        this.drawingStatusPanel = drawingStatusPanel;
+    }
+
+    public void setPropertySheet(PropertySheet propertySheet) {
+        this.propertySheet = propertySheet;
+    }
+
+
     private Shape currentShape = null;
 
-     public DrawingController(AppService appService, DrawingView drawingView){
-       this.appService = appService;
-       this.drawing = appService.getDrawing();
-       this.drawingView = drawingView;
-       drawingView.addMouseListener(this);
-       drawingView.addMouseMotionListener(this);
-     }
+    public DrawingController(AppService appService, DrawingView drawingView){
+        this.appService = appService;
+        this.drawing = appService.getDrawing();
+        this.drawingView = drawingView;
+        drawingView.addMouseListener(this);
+        drawingView.addMouseMotionListener(this);
+    }
     @Override
     public void mouseClicked(MouseEvent e) {
 
@@ -89,7 +103,7 @@ public class DrawingController  implements MouseListener, MouseMotionListener, K
                         currentShape.setThickness(appService.getThickness());
                 }
 
-/*                if(currentShape!=null) {
+/* if(currentShape!=null) {
                     currentShape.getRendererService().render(drawingView.getGraphics(), currentShape, false);
                 }
   */          }
@@ -123,7 +137,7 @@ public class DrawingController  implements MouseListener, MouseMotionListener, K
                 currentShape.getRendererService().render(drawingView.getGraphics(), currentShape, true);
                 currentShape.setText(drawing.getText());
                 currentShape.setFont(drawing.getFont());
-            Normalizer.normalize(currentShape);
+                Normalizer.normalize(currentShape);
                 appService.create(currentShape);
                 currentShape.setSelected(true);
 //                currentShape.getRendererService().render(drawingView.getGraphics(), currentShape, false);
@@ -175,7 +189,7 @@ public class DrawingController  implements MouseListener, MouseMotionListener, K
                 appService.scale(currentShape, end);
                 currentShape.getRendererService().render(drawingView.getGraphics(), currentShape, true);
             }
-       }
+        }
     }
 
     @Override

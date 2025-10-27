@@ -26,6 +26,12 @@ public class DrawingAppService implements AppService {
     XmlDocumentService xmlDocumentService;
 
     DocumentService documentService;
+
+    // FIX: Manually add setter that Lombok was supposed to create
+    public void setDrawingView(DrawingView drawingView) {
+        this.drawingView = drawingView;
+    }
+
     public DrawingAppService(){
         drawing = new Drawing();
         moverService = new MoverService();

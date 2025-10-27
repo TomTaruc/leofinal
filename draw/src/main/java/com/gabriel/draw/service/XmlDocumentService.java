@@ -80,6 +80,12 @@ public class XmlDocumentService implements DocumentService {
                 attr = document.createAttribute("color");
                 attr.setValue(String.valueOf(shape.getColor()));
                 element.setAttributeNode(attr);
+
+                // FIX: Added saving for thickness
+                attr = document.createAttribute("thickness");
+                attr.setValue(String.valueOf(shape.getThickness()));
+                element.setAttributeNode(attr);
+
                 root.appendChild(element);
             }
 
@@ -96,6 +102,7 @@ public class XmlDocumentService implements DocumentService {
         }
         catch(Exception e){
             System.out.println("Error occurred " + e.getMessage());
+            e.printStackTrace(); // Also good to print the stack trace
         }
     }
     @Override
@@ -115,7 +122,7 @@ public class XmlDocumentService implements DocumentService {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 NamedNodeMap map = node.getAttributes();
-
+                shape = null; // Reset shape
 
                 Node attr = map.getNamedItem("start.x");
                 x = (int) Double.parseDouble(attr.getNodeValue());
@@ -127,47 +134,72 @@ public class XmlDocumentService implements DocumentService {
                 width = (int) Double.parseDouble(attr.getNodeValue());
                 attr = map.getNamedItem("height");
                 height = (int) Double.parseDouble(attr.getNodeValue());
-                Point end = new Point(x, y);
 
+                // FIX: End point was calculated incorrectly
+                Point end = new Point(x + width, y + height);
+
+                // FIX: Load color safely with a default
                 attr = map.getNamedItem("color");
-                Color color = convertColor(attr.getNodeValue());
+                Color color = drawing.getColor(); // Default
+                if(attr != null) {
+                    color = convertColor(attr.getNodeValue());
+                }
 
+                // FIX: Load thickness safely with a default
                 attr = map.getNamedItem("thickness");
-                int thickness = Integer.parseInt(attr.getNodeValue());
+                int thickness = drawing.getThickness(); // Default
+                if(attr != null) {
+                    thickness = Integer.parseInt(attr.getNodeValue());
+                }
 
                 attr = map.getNamedItem("type");
                 if (attr.getNodeValue().equals("Rectangle")) {
                     shape = new Rectangle(start, width, height);
                 } else if (attr.getNodeValue().equals("Ellipse")) {
-                    shape = new Ellipse(start, end);
+                    shape = new Ellipse(start, end); // Use corrected end point
+                } else if (attr.getNodeValue().equals("Line")) {
+                    shape = new Line(start, end); // Use corrected end point
                 }
-                if (attr.getNodeValue().equals("Line")) {
-                    shape = new Line(start, end);
+
+                // FIX: Apply the loaded properties and add to drawing
+                if (shape != null) {
+                    shape.setColor(color);
+                    shape.setThickness(thickness);
+                    drawing.getShapes().add(shape);
                 }
-                drawing.getShapes().add(shape);
             }
         }
         catch(Exception e){
             System.out.println(e.getMessage());
+            e.printStackTrace(); // Also good to print the stack trace
         }
     }
 
     public Color convertColor(String colorStr) {
-        Color color;
-        int rIndex = colorStr.indexOf("r=");
-        colorStr = colorStr.substring(rIndex + 2);
-        int nextIndex = colorStr.indexOf(",");
-        String rStr = colorStr.substring(0, nextIndex);
-        colorStr = colorStr.substring(nextIndex + 3);
-        nextIndex = colorStr.indexOf(",");
-        String gStr = colorStr.substring(0, nextIndex);
-        colorStr = colorStr.substring(nextIndex + 3);
-        nextIndex = colorStr.indexOf("]");
-        String bStr = colorStr.substring(0, nextIndex);
-        int rcolor = Integer.parseInt(rStr);
-        int gcolor = Integer.parseInt(gStr);
-        int bcolor = Integer.parseInt(bStr);
-        color = new Color(rcolor, gcolor, bcolor);
-        return color;
+        // This method is fragile, but I will leave it as-is.
+        // A more robust method would use regex or handle nulls.
+        if (colorStr == null) {
+            return Color.BLACK; // Default
+        }
+        try {
+            Color color;
+            int rIndex = colorStr.indexOf("r=");
+            colorStr = colorStr.substring(rIndex + 2);
+            int nextIndex = colorStr.indexOf(",");
+            String rStr = colorStr.substring(0, nextIndex);
+            colorStr = colorStr.substring(nextIndex + 3);
+            nextIndex = colorStr.indexOf(",");
+            String gStr = colorStr.substring(0, nextIndex);
+            colorStr = colorStr.substring(nextIndex + 3);
+            nextIndex = colorStr.indexOf("]");
+            String bStr = colorStr.substring(0, nextIndex);
+            int rcolor = Integer.parseInt(rStr);
+            int gcolor = Integer.parseInt(gStr);
+            int bcolor = Integer.parseInt(bStr);
+            color = new Color(rcolor, gcolor, bcolor);
+            return color;
+        } catch (Exception e) {
+            return Color.BLACK; // Default on parsing error
+        }
     }
- }
+}

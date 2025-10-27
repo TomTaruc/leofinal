@@ -14,4 +14,9 @@ public class Picture extends Shape {
         this.imageFilename = imageFilename;
         setRendererService(new PictureRenderer());
     }
+
+    // FIX: Manually add getter that Lombok @Data was supposed to create
+    public String getImageFilename() {
+        return this.imageFilename;
+    }
 }

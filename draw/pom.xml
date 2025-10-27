@@ -31,7 +31,7 @@
         </dependency >
         <dependency >
             <groupId >com.gabriel</groupId >
-            <artifactId >prop</artifactId >
+            <artifactId >property</artifactId >
             <version >1.0-SNAPSHOT</version >
         </dependency >
         <dependency >

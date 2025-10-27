@@ -1,10 +1,11 @@
 package com.gabriel.drawfx.model;
 
 import com.gabriel.drawfx.SelectionMode;
-import com.gabriel.drawfx.service.RendererService;
+import com.gabriel.drawfx.renderer.Renderer;
 import lombok.Data;
 
 import java.awt.*;
+
 @Data
 public abstract class Shape {
     boolean selected = false;
@@ -16,7 +17,15 @@ public abstract class Shape {
     private int height = 0;
     private Color color = Color.RED;
     private Color fill;
-    private RendererService rendererService;
+    private int thickness;
+    String text;
+    Font font;
+
+    private Renderer rendererService;
+
+    public Shape(){
+
+    }
     public Shape(Point location){
         this.setLocation(location);
     }

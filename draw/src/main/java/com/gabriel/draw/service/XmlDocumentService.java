@@ -4,7 +4,6 @@ import com.gabriel.draw.model.Ellipse;
 import com.gabriel.draw.model.Line;
 import com.gabriel.draw.model.Rectangle;
 import com.gabriel.drawfx.model.Drawing;
-import com.gabriel.drawfx.service.AppService;
 import com.gabriel.drawfx.service.DocumentService;
 import org.w3c.dom.*;
 import com.gabriel.drawfx.model.Shape;
@@ -24,6 +23,11 @@ public class XmlDocumentService implements DocumentService {
 
     public XmlDocumentService(Drawing drawing){
         this.drawing = drawing;
+    }
+
+    @Override
+    public void newDoc() {
+
     }
 
     @Override

@@ -90,6 +90,16 @@ public class DrawingCommandAppService implements AppService {
     }
 
     @Override
+    public void move(Point start, Point end) {
+        appService.move(start, end);
+    }
+
+    @Override
+    public void scale(Point start, Point end) {
+
+    }
+
+    @Override
     public void scale(Shape shape, Point start, Point end) {
         appService.scale(shape, start, end);
     }
@@ -141,6 +151,11 @@ public class DrawingCommandAppService implements AppService {
     }
 
     @Override
+    public void search(Point p, boolean single) {
+        appService.search(p, single);
+    }
+
+    @Override
     public void open(String filename) {
         appService.open(filename);
     }
@@ -162,6 +177,11 @@ public class DrawingCommandAppService implements AppService {
     }
 
     @Override
+    public String getFileName() {
+        return appService.getFileName();
+    }
+
+    @Override
     public void select(Shape selectedShape) {
         appService.select(selectedShape);
     }
@@ -179,5 +199,85 @@ public class DrawingCommandAppService implements AppService {
     @Override
     public List<Shape> getSelectedShapes() {
         return appService.getSelectedShapes();
+    }
+
+    @Override
+    public void clearSelections(){
+        appService.clearSelections();;
+    }
+
+    @Override
+    public void setThickness(int thickness) {
+        appService.setThickness(thickness);
+    }
+
+    @Override
+    public int getThickness() {
+        return appService.getThickness();
+    }
+
+    @Override
+    public void setXLocation(int xLocation) {
+        appService.setXLocation(xLocation);
+    }
+
+    @Override
+    public int getXLocation() {
+        return appService.getXLocation();
+    }
+
+    @Override
+    public void setYLocation(int yLocation) {
+        appService.setYLocation(yLocation);
+    }
+
+    @Override
+    public int getYLocation() {
+        return appService.getYLocation();
+    }
+
+    @Override
+    public void setWidth(int width) {
+        appService.setWidth(width);
+    }
+
+    @Override
+    public int getWidth() {
+        return appService.getWidth();
+    }
+
+    @Override
+    public void setHeight(int height) {
+        appService.setHeight(height);
+    }
+
+    @Override
+    public int getHeight() {
+        return appService.getHeight();
+    }
+
+    @Override
+    public void setImageFileename() {
+        appService.setImageFileename();
+    }
+
+    @Override
+    public void setImageFileename(String filename) {
+        appService.setImageFileename(filename);
+    }
+
+    @Override
+    public String getImageFileename() {
+        return appService.getImageFileename();
+    }
+
+    @Override
+    public void setText(String text) {
+        appService.setText(text);
+    }
+
+    @Override
+    public void setFontSize(int fontSize) {
+        appService.setFontSize(fontSize);
     }
 }
